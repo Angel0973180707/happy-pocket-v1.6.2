@@ -1,0 +1,17 @@
+{
+  "short_name": "零用錢練功房",
+  "name": "幸福教養：零用錢練功房 v1.6.2",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/272/272525.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#121212",
+  "background_color": "#121212",
+  "orientation": "portrait"
+}
