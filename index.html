@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>幸福教養｜零用錢練功房 v1.6.2</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/272/272525.png">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+body { font-family: 'Noto Sans TC', sans-serif; background-color: #121212; color: #e5e7eb; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+.card-dark { background: #1a1a1a; border-radius: 1.5rem; padding: 1.25rem; border: 1px solid #262626; }
+.input-dark-field { width: 100%; background: #000; border: 1px solid #333; border-radius: 1rem; padding: 0.8rem; color: white; outline: none; }
+.btn-orange-dark { background: linear-gradient(135deg, #f97316, #ea580c); color: white; border-radius: 1.25rem; font-weight: 900; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; color: #404040; transition: 0.2s; }
+.tab-active { color: #f97316; font-weight: bold; }
+.mode-btn { padding: 0.6rem; border-radius: 0.8rem; background: #262626; color: #a3a3a3; font-size: 11px; border: 1px solid transparent; }
+.mode-active { background: rgba(249, 115, 22, 0.1); color: #f97316; border-color: #f97316; }
+.hidden { display: none !important; }
+.progress-bar { transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+</style>
+</head>
+
+<body class="pb-28">
+
+<div class="p-4 flex justify-between items-center bg-[#1a1a1a] sticky top-0 z-50 h-20 border-b border-gray-800">
+<div>
+<p class="text-[10px] text-gray-500 font-bold">幸福教養｜零用錢練功房</p>
+<select id="roleSwitch" onchange="switchRole(this.value)" class="bg-black text-orange-500 font-black outline-none border-none cursor-pointer text-sm">
+<option value="child">👶 兒童練功模式</option>
+<option value="parent">⚙️ 家長管理中心</option>
+</select>
+</div>
+<div class="flex gap-4 font-black">
+<span class="text-orange-500 text-sm">💰 $<span id="balanceDisplay">0</span></span>
+<span class="text-blue-400 text-sm">💎 <span id="pointsDisplay">0</span>P</span>
+</div>
+</div>
+
+<main class="p-4 max-w-md mx-auto">
+<section id="page-info" class="page-content space-y-4">
+<h1 class="text-xl font-black text-orange-500 italic uppercase">幸福教養｜零用錢練功房</h1>
+<div class="card-dark border-l-4 border-orange-500">
+<h2 class="font-black text-orange-400 mb-2">💡 零用錢練功房定義</h2>
+<div class="text-gray-400 text-[11px] leading-relaxed space-y-2">
+<p>這是一個練習<span class="text-white font-bold">「理智消費」</span>的遊戲。零用錢不是單純的給予，而是學習資源分配與情緒控制的工具。</p>
+<ul class="list-disc ml-4 space-y-1">
+<li><span class="text-white">需要：</span>生活中不可或缺的（如文具）。</li>
+<li><span class="text-white">想要：</span>目前不需要但擁有會開心的（如玩具）。</li>
+<li><span class="text-blue-400">願望：</span>需要長時間儲蓄才能達成的夢想。</li>
+</ul>
+<p>透過「冷靜期」練習，省下來的錢會轉化為點數，讓孩子在滿足物質慾望前，先收穫理智的成就感。</p>
+</div>
+</div>
+<div class="card-dark border-l-4 border-blue-500">
+<h2 class="font-black text-blue-400 mb-2">📲 安裝到手機桌面</h2>
+<div class="text-gray-400 text-[11px] leading-relaxed">
+<p class="mb-2">將此工具網址貼到瀏覽器上，進入後會看到工具頁面，然後進行以下操作即可安裝：</p>
+<div class="bg-black/50 p-3 rounded-lg border border-gray-800">
+<p class="text-white font-bold mb-1">Apple Safari (iOS)：</p>
+<p>點擊底部導覽列的「分享按鈕 (箭頭向上)」，選擇「加入主畫面」。</p>
+<p class="text-white font-bold mt-2 mb-1">Android Chrome：</p>
+<p>點擊右上角「三個點」，選擇「安裝應用程式」或「加入主畫面」。</p>
+</div>
+</div>
+</div>
+<div class="card-dark border-l-4 border-yellow-500 text-sm">
+<h2 class="font-black text-yellow-500 mb-1">🧘 修練規則</h2>
+<ul class="text-gray-400 text-[11px] space-y-1">
+<li>1. 想消費時，必須先啟動「30秒冷靜期」，計劃性消費直接記錄即可。</li>
+<li>2. 決定不買或考慮「省下」的金額可累積能量點數（一元=1點）換p幣（幾點換1p可自行設定）領取扭蛋。</li>
+<li>3. 決定的類別（需要/想要）會記錄在金庫日誌中。金額大，餘額不足的，先放到願望池孵化，慢慢存款實現願望</li>
+<li>4. 每期使用前請先到設定區進行各項設定</li>
+</ul>
+</div>
+</section>
+
+<section id="page-vault" class="page-content hidden space-y-4">
+<div class="card-dark text-center py-6 bg-gradient-to-b from-[#1a1a1a] to-[#251805] border-b-4 border-yellow-600 shadow-xl">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Available Balance</p>
+<p class="text-6xl font-black text-yellow-500 mb-4">$<span id="v-bal">0</span></p>
+<div class="flex justify-center gap-2 text-[10px]">
+<span class="bg-black/60 px-3 py-1 rounded-full text-blue-400 border border-blue-900/50 italic">能量: $<span id="v-saved">0</span></span>
+<span class="bg-black/60 px-3 py-1 rounded-full text-orange-400 border border-orange-900/50 italic">點數: <span id="v-pts">0</span>P</span>
+</div>
+</div>
+<div class="card-dark border-l-4 border-purple-600 bg-purple-900/10 flex justify-between items-center py-4">
+<div class="text-xs">
+<p class="text-gray-400 font-bold uppercase">Settlement</p>
+<p class="text-purple-400 font-black text-lg" id="v-date">未設定日期</p>
+</div>
+<button onclick="checkUnboxPermission()" class="bg-purple-600 px-6 py-2 rounded-xl text-white font-black text-sm active:scale-95 transition-transform">結算開箱</button>
+</div>
+<button onclick="playGacha()" class="card-dark w-full border-2 border-orange-900 bg-orange-900/10 py-4 font-black text-orange-300 italic">🎡 能量扭蛋 (1P)</button>
+<div class="space-y-2">
+<h3 class="text-[10px] text-gray-500 font-black px-2 uppercase tracking-widest">Recent Activity</h3>
+<div id="historyList" class="space-y-2"></div>
+</div>
+</section>
+
+<section id="page-practice" class="page-content hidden">
+<div class="card-dark text-center p-6 flex flex-col justify-center min-h-[350px]">
+<div id="step-input">
+<h2 class="text-xl font-black mb-4 text-orange-400 italic uppercase text-center">Training</h2>
+<input type="text" id="itemName" class="input-dark-field mb-2 text-center" placeholder="想買什麼？">
+<input type="number" id="itemPrice" class="input-dark-field mb-6 text-3xl font-black text-center" placeholder="$">
+<button onclick="startCooldown()" class="btn-orange-dark w-full py-4 text-lg mb-4 shadow-lg">🧘 啟動 30s 冷靜期</button>
+<button onclick="quickSettle()" class="w-full py-2 text-gray-600 text-xs underline">✅ 計畫性購買 (不計練功)</button>
+</div>
+<div id="step-cooldown" class="hidden">
+<div id="timerNum" class="text-8xl font-black text-orange-500 my-8 animate-pulse">30</div>
+<p class="text-gray-500 italic tracking-widest text-center">冷靜中，請深呼吸...</p>
+</div>
+<div id="step-decision" class="hidden">
+<p class="text-gray-400 text-xs mb-4 italic text-center">冷靜時間結束，請分類此項目：</p>
+<div class="grid grid-cols-3 gap-2 mb-6">
+<button onclick="setMode('需要', this)" class="mode-btn">需要</button>
+<button onclick="setMode('想要', this)" class="mode-btn">想要</button>
+<button onclick="setMode('願望', this)" class="mode-btn border-blue-900/50 text-blue-400">✨ 願望池</button>
+</div>
+<button id="save-energy-btn" onclick="saveDecision(false)" class="btn-orange-dark w-full py-4 mb-4 text-lg">省下金額，儲存能量！</button>
+<button onclick="saveDecision(true)" class="w-full text-gray-500 text-xs underline">我決定購買</button>
+</div>
+</div>
+</section>
+
+<section id="page-wish" class="page-content hidden space-y-4">
+<h2 class="text-center text-xl font-black text-blue-400 italic uppercase">Wish Pool</h2>
+<div id="wishList" class="space-y-4"></div>
+</section>
+
+<section id="page-settings" class="page-content hidden">
+<div id="parent-settings" class="hidden space-y-4 text-xs">
+<div class="card-dark border border-purple-900 space-y-3">
+<h2 class="font-black text-purple-500 text-center mb-2 uppercase tracking-tighter">⚙️ Management</h2>
+<div><label class="text-gray-500">Google 回饋表單連結</label><input type="text" id="setFormUrl" class="input-dark-field mt-1 text-blue-400"></div>
+<div><label class="text-gray-500">下一開箱日期</label><input type="date" id="setUnboxDate" class="input-dark-field mt-1"></div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="text-gray-500">加碼利息 %</label><input type="number" id="setInterest" class="input-dark-field mt-1"></div>
+<div><label class="text-gray-500">加碼上限 $</label><input type="number" id="setLimit" class="input-dark-field mt-1"></div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="text-gray-500">零用錢（可用餘額）</label><input type="number" id="setBalance" class="input-dark-field mt-1"></div>
+<div><label class="text-gray-500">1P 點數匯率（省1元1點，幾點可換1p）</label><input type="number" id="setRate" class="input-dark-field mt-1"></div>
+</div>
+<div><label class="text-gray-500">扭蛋獎項 (親子共創，可設置多項，用「、」隔開)</label><textarea id="poolInput" class="input-dark-field h-16 mt-1 text-[10px]"></textarea></div>
+<button onclick="saveSettings()" class="btn-orange-dark w-full py-4 mt-2">💾 儲存並同步</button>
+</div>
+<div class="card-dark border border-red-900 bg-red-900/5 p-4 mt-4 text-center">
+<button onclick="resetAllData()" class="w-full py-3 bg-red-600/20 text-red-500 border border-red-600 rounded-xl font-black">🗑️ 完整重置系統</button>
+</div>
+</div>
+<div id="child-lock-msg" class="text-center p-20 text-gray-700 font-bold italic">🔒 管理功能已鎖定</div>
+</section>
+</main>
+
+<div id="unbox-modal" class="fixed inset-0 bg-black/98 z-[100] hidden flex flex-col p-6 overflow-y-auto">
+<div id="settle-screen" class="flex-grow flex flex-col justify-center text-center space-y-6">
+<h2 class="text-3xl font-black text-purple-400 italic">🎁 開箱結算</h2>
+<div class="card-dark space-y-4 bg-gray-900/50 border-purple-500/30">
+<div class="flex justify-between"><span>本期餘額:</span><span class="text-white font-bold">$<span id="m-bal">0</span></span></div>
+<div class="flex justify-between border-b border-gray-800 pb-2 text-green-400">
+<span>加碼利息 (<span id="m-rate">0</span>%):</span>
+<span class="font-bold">+$<span id="m-bonus">0</span></span>
+</div>
+<div class="flex justify-between text-2xl font-black text-yellow-500 pt-2"><span>應領總額:</span><span>$<span id="m-total">0</span></span></div>
+</div>
+<button onclick="finalSettle()" class="w-full bg-purple-600 text-white py-5 rounded-2xl font-black shadow-lg text-lg">確認結算並重置餘額</button>
+<button onclick="$('unbox-modal').classList.add('hidden')" class="text-gray-600 text-xs underline">暫時取消</button>
+</div>
+<div id="feedback-screen" class="hidden flex-grow flex flex-col justify-center text-center space-y-8">
+<div class="text-6xl animate-bounce">🏆</div>
+<h2 class="text-3xl font-black text-yellow-500 italic">MISSION CLEAR</h2>
+<p class="text-gray-400 leading-relaxed px-6">恭喜完成修練！請點擊按鈕填寫回饋問卷，這是優化工具最重要的數據：</p>
+<button onclick="window.open(state.formUrl || 'https://forms.gle/A7c4bhmMzp9sdvWA7', '_blank')" class="btn-orange-dark w-full py-5 text-center text-lg shadow-2xl font-black border-2 border-yellow-400">📝 提交回饋問卷</button>
+<button onclick="location.reload()" class="text-gray-600 text-sm underline italic">返回主畫面</button>
+</div>
+</div>
+
+<nav class="fixed bottom-0 w-full bg-[#1a1a1a] border-t border-gray-800 flex justify-around p-3 h-24 z-50">
+<button onclick="showPage('info')" class="nav-item tab-active" id="nav-info">📖<span class="text-[10px] mt-1">說明</span></button>
+<button onclick="showPage('vault')" class="nav-item" id="nav-vault">🍯<span class="text-[10px] mt-1">金庫</span></button>
+<button onclick="showPage('practice')" class="nav-item" id="nav-practice">🧘<span class="text-[10px] mt-1">練功</span></button>
+<button onclick="showPage('wish')" class="nav-item" id="nav-wish">✨<span class="text-[10px] mt-1">願望池</span></button>
+<button onclick="showPage('settings')" class="nav-item" id="nav-settings">⚙️<span class="text-[10px] mt-1">設定</span></button>
+</nav>
+
+<script>
+const STORAGE_KEY = "hp_v163_final_restore";
+const $ = (id) => document.getElementById(id);
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+role: "child", balance: 0, savedAmount: 0, gachaCount: 0,
+interestRate: 10, interestLimit: 100, unboxDate: "", pointsPerP: 100,
+formUrl: "https://forms.gle/A7c4bhmMzp9sdvWA7",
+logs: [], wishes: [], gachaPool: ["看電視20分", "額外零嘴", "晚睡15分", "Switch 30分"]
+};
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUI(); }
+
+function updateUI() {
+const currentP = Math.max(0, Math.floor(state.savedAmount / (state.pointsPerP || 100)) - state.gachaCount);
+$('balanceDisplay').innerText = state.balance;
+$('pointsDisplay').innerText = currentP;
+$('v-bal').innerText = state.balance;
+$('v-pts').innerText = currentP;
+$('v-saved').innerText = state.savedAmount;
+$('v-date').innerText = state.unboxDate || "未設定";
+$('parent-settings').classList.toggle('hidden', state.role !== "parent");
+$('child-lock-msg').classList.toggle('hidden', state.role === "parent");
+renderHistory(); renderWishes();
+}
+
+window.resetAllData = () => {
+if(confirm("🚨 警告：這將會清除所有資料！確定要重置嗎？")) {
+localStorage.removeItem(STORAGE_KEY);
+location.reload();
+}
+};
+
+window.checkUnboxPermission = () => {
+if (state.role !== 'parent') return alert("結算權限僅限家長。");
+const bonus = Math.min(Math.floor(state.balance * (state.interestRate / 100)), state.interestLimit);
+$('m-bal').innerText = state.balance; $('m-rate').innerText = state.interestRate;
+$('m-bonus').innerText = bonus; $('m-total').innerText = state.balance + bonus;
+$('settle-screen').classList.remove('hidden'); $('feedback-screen').classList.add('hidden');
+$('unbox-modal').classList.remove('hidden');
+};
+
+window.finalSettle = () => {
+const total = $('m-total').innerText;
+state.balance = 0; state.savedAmount = 0; state.gachaCount = 0;
+state.logs.unshift({ time: new Date().toLocaleDateString(), name: "🏆 開箱結算", mode: "完賽", val: `$${total}`, color: "text-purple-400" });
+save();
+confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+$('settle-screen').classList.add('hidden');
+$('feedback-screen').classList.remove('hidden');
+};
+
+window.showPage = (id) => {
+document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+$('page-' + id).classList.remove('hidden');
+document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('tab-active'));
+$('nav-' + id).classList.add('tab-active');
+if(id === 'settings' && state.role === 'parent') {
+$('setBalance').value = state.balance; $('setRate').value = state.pointsPerP;
+$('setInterest').value = state.interestRate; $('setLimit').value = state.interestLimit;
+$('setUnboxDate').value = state.unboxDate; $('poolInput').value = state.gachaPool.join('、');
+$('setFormUrl').value = state.formUrl;
+}
+};
+
+window.startCooldown = () => {
+if (!$('itemPrice').value || !$('itemName').value) return alert("請填寫項目與金額");
+$('step-input').classList.add('hidden'); $('step-cooldown').classList.remove('hidden');
+let t = 30;
+const timer = setInterval(() => {
+t--; $('timerNum').innerText = t;
+if (t <= 0) { clearInterval(timer); $('step-cooldown').classList.add('hidden'); $('step-decision').classList.remove('hidden'); }
+}, 1000);
+};
+
+window.setMode = (m, btn) => {
+state.lastMode = m;
+document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('mode-active'));
+btn.classList.add('mode-active');
+$('save-energy-btn').innerText = (m === '願望') ? "✨ 加入願望池" : "省下金額，儲存能量！";
+};
+
+window.saveDecision = (buy) => {
+if(!state.lastMode) return alert("請選擇分類");
+const p = parseInt($('itemPrice').value); const n = $('itemName').value;
+if (buy) {
+if(state.balance < p) return alert("餘額不足！");
+state.balance -= p;
+state.logs.unshift({ time: new Date().toLocaleDateString(), name: n, mode: `衝動:${state.lastMode}`, action: "購買", val: `-$${p}`, color: "text-red-500" });
+} else {
+if (state.lastMode === '願望') { state.wishes.unshift({ name: n, price: p, saved: 0 }); }
+else { state.savedAmount += p; }
+state.logs.unshift({ time: new Date().toLocaleDateString(), name: n, mode: `省下:${state.lastMode}`, action: "省錢", val: `+$${p}`, color: "text-blue-400" });
+confetti({ particleCount: 100 });
+}
+save(); resetPractice();
+};
+
+window.quickSettle = () => {
+const p = parseInt($('itemPrice').value); const n = $('itemName').value;
+if (!p || !n || state.balance < p) return alert("餘額不足或資料錯誤");
+state.balance -= p;
+state.logs.unshift({ time: new Date().toLocaleDateString(), name: `(計畫) ${n}`, mode: "計畫", action: "購買", val: `-$${p}`, color: "text-gray-400" });
+save(); resetPractice();
+};
+
+window.saveSettings = () => {
+state.balance = parseInt($('setBalance').value) || 0;
+state.pointsPerP = parseInt($('setRate').value) || 100;
+state.interestRate = parseInt($('setInterest').value) || 0;
+state.interestLimit = parseInt($('setLimit').value) || 0;
+state.unboxDate = $('setUnboxDate').value;
+state.formUrl = $('setFormUrl').value;
+if($('poolInput').value) state.gachaPool = $('poolInput').value.split(/[、,]/);
+save(); alert("設定儲存成功！");
+};
+
+window.injectMoney = (i) => {
+const amt = parseInt(prompt(`錢包剩 $${state.balance}，要存多少到 ${state.wishes[i].name}？`));
+if (!amt || amt <= 0 || state.balance < amt) return alert("金額無效");
+state.balance -= amt; state.wishes[i].saved += amt;
+if (state.wishes[i].saved >= state.wishes[i].price) confetti({ particleCount: 200 });
+save();
+};
+
+window.playGacha = () => {
+const currentP = Math.floor(state.savedAmount / (state.pointsPerP || 100)) - state.gachaCount;
+if(currentP < 1) return alert("能量點數不足！");
+const prize = state.gachaPool[Math.floor(Math.random() * state.gachaPool.length)];
+state.gachaCount++; save(); alert(`🎊 抽中獎勵：【${prize}】`);
+};
+
+window.switchRole = (r) => { state.role = r; save(); };
+window.deleteWish = (i) => { if(confirm("刪除此願望？")) { state.wishes.splice(i, 1); save(); } };
+
+function resetPractice() { $('step-input').classList.remove('hidden'); $('step-decision').classList.add('hidden'); $('itemPrice').value = ''; $('itemName').value = ''; showPage('vault'); }
+
+function renderWishes() {
+$('wishList').innerHTML = state.wishes.map((w, i) => `
+<div class="card-dark border-t-4 border-blue-500 bg-blue-900/5">
+<div class="flex justify-between font-black text-xs mb-1"><span>${w.name}</span><span>$${w.saved}/$${w.price}</span></div>
+<div class="w-full bg-black h-3 rounded-full overflow-hidden border border-gray-800 mb-3">
+<div class="progress-bar bg-blue-500 h-full" style="width:${Math.min(100,(w.saved/w.price)*100)}%"></div>
+</div>
+<div class="flex gap-2"><button onclick="injectMoney(${i})" class="flex-1 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-xs font-black">💰 注入</button><button onclick="deleteWish(${i})" class="px-3 py-2 bg-red-900/10 text-red-500 rounded-lg text-xs">🗑️</button></div>
+</div>`).join('');
+}
+
+function renderHistory() {
+$('historyList').innerHTML = state.logs.slice(0, 5).map(l => `
+<div class="card-dark p-3 text-[10px] flex justify-between border-gray-800">
+<span>${l.time} <b class="ml-2 text-orange-300">${l.name}</b></span>
+<span class="${l.color} font-black">${l.val}</span>
+</div>`).join('');
+}
+
+// 註冊 Service Worker (PWA 安裝關鍵)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('PWA Service Worker 已就緒'))
+            .catch(err => console.log('SW 註冊失敗', err));
+    });
+}
+
+document.addEventListener('DOMContentLoaded', updateUI);
+</script>
+</body>
+</html>
